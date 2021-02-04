@@ -1,5 +1,6 @@
 # Discordbot-Deals
 A discord bot to get deals information of steam app.
+This fork displays HKD instead of TWD
 
 # Deals Discord Bot
 A discord bot to get deals information form [isthereanydeal.com](https://isthereanydeal.com)  
