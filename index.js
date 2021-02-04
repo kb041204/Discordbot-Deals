@@ -27,11 +27,11 @@ const getSteamInfoByPlain = (json, plain) => {
 
 const itadShops = 'amazonus,bundlestars,chrono,direct2drive,dlgamer,dreamgame,fireflower,gamebillet,gamejolt,gamersgate,gamesplanet,gog,humblestore,humblewidgets,impulse,indiegalastore,indiegamestand,itchio,macgamestore,newegg,origin,paradox,savemi,silagames,squenix,steam,uplay,wingamestore'
 
-let exRateUSDTW = 30
+let exRateUSDHK = 7.8
 
 const exRateUpdate = () => {
   axios.get('https://tw.rter.info/capi.php').then((res) => {
-    exRateUSDTW = Math.round(res.data.USDTWD.Exrate * 100) / 100
+    exRateUSDHK = Math.round(res.data.USDHKD.Exrate * 100) / 100
   })
 }
 
@@ -96,9 +96,9 @@ const getItadData = async (name) => {
       const bundle = json3.data.data[plain]
 
       const rDeal =
-        `原價: ${current.price_old} USD / ${Math.round(current.price_old * exRateUSDTW * 100) / 100} TWD\n` +
-        `目前最低: ${current.price_new} USD / ${Math.round(current.price_new * exRateUSDTW * 100) / 100} TWD, -${current.price_cut}%, 在 ${current.shop.name}\n` +
-        `歷史最低: ${lowest.price} USD / ${Math.round(lowest.price * exRateUSDTW * 100) / 100} TWD, -${lowest.cut}%, ${formatDate(new Date(lowest.added * 1000))} 在 ${lowest.shop.name}\n` +
+        `原價: ${current.price_old} USD / ${Math.round(current.price_old * exRateUSDHK * 100) / 100} HKD\n` +
+        `目前最低: ${current.price_new} USD / ${Math.round(current.price_new * exRateUSDHK * 100) / 100} HKD, -${current.price_cut}%, 在 ${current.shop.name}\n` +
+        `歷史最低: ${lowest.price} USD / ${Math.round(lowest.price * exRateUSDHK * 100) / 100} HKD, -${lowest.cut}%, ${formatDate(new Date(lowest.added * 1000))} 在 ${lowest.shop.name}\n` +
         `${current.url}`
 
       let rInfo = `https://isthereanydeal.com/game/${plain}/info/\n`
@@ -130,7 +130,7 @@ const getItadData = async (name) => {
 
           embed.setImage(replyImage)
 
-          json = await axios.get(`http://store.steampowered.com/api/appdetails/?appids=${appInfo.id}&cc=tw&filters=price_overview`)
+          json = await axios.get(`http://store.steampowered.com/api/appdetails/?appids=${appInfo.id}&cc=hk&filters=price_overview`)
           const steamOV = json.data
 
           if (steamOV[appInfo.id].success && typeof steamOV[appInfo.id].data === 'object') {
@@ -138,7 +138,7 @@ const getItadData = async (name) => {
             rSteam += `原價: ${price.initial_formatted.length === 0 ? price.final_formatted : price.initial_formatted}, \n` +
               `目前價格: ${price.final_formatted}, -${price.discount_percent}%`
 
-            json = await axios.get(`https://steamdb.info/api/ExtensionGetPrice/?appid=${appInfo.id}&currency=TWD`, {
+            json = await axios.get(`https://steamdb.info/api/ExtensionGetPrice/?appid=${appInfo.id}&currency=HKD`, {
               headers: {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.111 Safari/537.36'
               }
@@ -147,13 +147,13 @@ const getItadData = async (name) => {
             if (steamLow.success) rSteam += `\n歷史最低: ${steamLow.data.lowest.price}, -${steamLow.data.lowest.discount}%, ${formatDate(new Date(steamLow.data.lowest.date))}\n`
           }
         } else if (appInfo.type === 'sub') {
-          json = await axios.get(`https://store.steampowered.com/api/packagedetails/?packageids=${appInfo.id}&cc=tw`)
+          json = await axios.get(`https://store.steampowered.com/api/packagedetails/?packageids=${appInfo.id}&cc=hk`)
           const steamOV = json.data
           if (steamOV[appInfo.id].success) {
             const { price } = steamOV[appInfo.id].data
-            rSteam += `原價:  NT$ ${price.initial / 100}\n` +
-              `單買原價:  NT$ ${price.individual / 100}\n` +
-              `目前價格:  NT$ ${price.final / 100}, -${price.discount_percent}%`
+            rSteam += `原價:  HK$ ${price.initial / 100}\n` +
+              `單買原價:  HK$ ${price.individual / 100}\n` +
+              `目前價格:  HK$ ${price.final / 100}, -${price.discount_percent}%`
           }
         }
       }
@@ -189,7 +189,8 @@ client.on('message', msg => {
         '\n:link:  相關連結\n' +
         '• 巴哈文章: https://forum.gamer.com.tw/C.php?bsn=60599&snA=27046\n' +
         '• 邀請連結: https://discordapp.com/oauth2/authorize?client_id=634902541687324702&scope=bot&permissions=28832\n' +
-        '• 機器人原始碼: https://github.com/rogeraabbccdd/Discordbot-Deals'
+        '• 機器人原始碼: https://github.com/rogeraabbccdd/Discordbot-Deals' +
+		'• HKD version forked by LosTnFiND'
       msg.channel.send(reply)
       msg.clearReactions().then(() => {
         msg.react('✅').catch()
